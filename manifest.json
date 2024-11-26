@@ -1,0 +1,35 @@
+{
+    "manifest_version": 3,
+    "name": "Pokerogue Team Tracker",
+    "description": "Display team information for the Pokerogue browser game",
+    "version": "1.0.0", 
+    "permissions": ["tabs"],
+
+    "content_scripts": [
+        {
+            "matches": ["https://pokerogue.net/*"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        }
+    ],
+
+    "web_accessible_resources": [{
+        "resources": ["inject-script.js"],
+        "matches": ["https://pokerogue.net/*"]
+    }],
+
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+
+    "action": {
+        "default_icon": {
+            "16": "images/icons/icon-rogueball.png",
+            "32": "images/icons/icon-rogueball.png",
+            "48": "images/icons/icon-rogueball.png",
+            "128": "images/icons/icon-rogueball.png"
+        },
+        "default_title": "Pokerogue Team Tracker"
+    }
+}

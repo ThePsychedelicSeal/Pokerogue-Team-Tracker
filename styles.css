@@ -1,0 +1,142 @@
+@font-face {
+  font-family: False-Positive;
+  src: url(./fonts/falsepos.ttf);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: False-Positive;
+  color: #333333;
+}
+
+.hide {
+  display: none;
+}
+
+.popup {
+  width: 500px;
+  height: 800px;
+  background-color: #e5e4c5ff;
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  align-items: center;
+  justify-content: center;
+}
+
+.pokemon-card {
+  position: relative;
+  width: 300px;
+  height: 100px;
+  background-color: #ffffcc;
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  border: #777777 solid 2px;
+}
+  
+.sprite {
+  min-width: 100px;
+  width: 100px;
+  height: 100px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+  
+.pokemon-sprite {
+  grid-column: 1 / span 3;
+  grid-row: 1 / span 3;
+  max-width: 85%;
+  margin-left: 5px;
+}
+  
+#memberOneForm, #memberTwoForm, #memberThreeForm, #memberFourForm, #memberFiveForm, #memberSixForm {
+  grid-column: 1;
+  grid-row: 1;
+  z-index: 1;
+  width: 100%;
+}
+  
+.stats {
+  max-width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: 30px 16px 20px 15px;
+  gap: 3px;
+  padding-top: 5px;
+}
+  
+.line-one, .line-two, .line-three, .line-four {
+  display: flex;
+  width: 200px;
+}
+  
+.line-one {
+  justify-content: space-between;
+  align-items: center;
+}
+  
+.line-three  {
+  justify-content: end;
+}
+  
+.name {
+  min-width: 0;
+  font-size: 30px;
+}
+  
+p {
+  margin: 0;
+}
+
+.level-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  padding-right: 5px;
+}
+
+#level-text {
+  font-size: 10px;
+}
+
+.level-number {
+  font-size: 18px;
+}
+
+.types {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  gap: 5px;
+}
+
+#type-one, #type-two {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.status {
+  border-radius: 20px;
+  margin-right: 3px;
+  margin-top: 2px;
+}
+
+.hp-container {
+  width: 100%;
+  height: 100%;
+  background-color: #555555;
+  border-radius: 10px;
+  border: 2px solid black;
+  margin-right: 3px;
+  overflow: hidden;
+}
+
+.hp-bar {
+  width: 100%;
+}
