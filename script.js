@@ -1,108 +1,126 @@
 const hpBarGreen = "#39ff7b";
 const hpBarYellow = "#f3b200";
 const hpBarRed = "#fb3041";
+const cardColor = "#ffffcc";
+const pokemonCards = Array.from(document.querySelectorAll(".pokemon-card"));
+const indexToText = ["One", "Two", "Three", "Four", "Five", "Six"];
+
 
 chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-      if (request.data) {
-        const party = request.data;
+  function (request, sender, sendResponse) {
+    if (request.data) {
+      party = request.data;
 
-        const members = [];
-        function createMemberObject(partyMember, index) {
-          if (!partyMember) return null;
+      function setHp(percentage, hp) {
+        hp.style.width = percentage + "%";
+        if (percentage <= 25) {
+          hp.style.backgroundColor = hpBarRed;
+        } else if (percentage <= 50) {
+          hp.style.backgroundColor = hpBarYellow;
+        } else {
+          hp.style.backgroundColor = hpBarGreen;
+        }
+      };
 
-          return {
-            id: `member${index + 1}`,
-            originalName: partyMember.name,
-            sortName: partyMember.name.replace("G-Max ", "").replace("Mega ", ""),
-            form: partyMember.form,
-            level: partyMember.level,
-            typeOne: partyMember.types[0],
-            typeTwo: partyMember.types[1],
-            teraType: partyMember.teraType,
-            status: partyMember.status,
-            currentHp: partyMember.currentHP,
-            maxHp: partyMember.maxHP
-          };
+      function sortCards() {
+        pokemonCards.sort((a, b) => {
+          const hasInfoA = a.querySelector('.name').textContent !== "";
+          const hasInfoB = b.querySelector('.name').textContent !== "";
+      
+          // If card A has info and card B doesn't, put A first
+          if (hasInfoA && !hasInfoB) {
+            return -1; // A comes before B
+          } else if (!hasInfoA && hasInfoB) {
+            return 1;  // B comes before A
+          } else {
+            // If both or neither have information, sort alphabetically by name
+            let nameA = a.querySelector('.name').textContent;
+            let nameB = b.querySelector('.name').textContent;
+            return nameA.localeCompare(nameB); // Alphabetical order
+          }
+        });
+
+        pokemonCards.forEach((card, index) => {
+          card.style.order = index;
+        });
+      };
+
+      // Function to update a single member's card
+      function updateMember(memberIndex, memberData) {
+        const cardId = `card${indexToText[memberIndex]}`;
+        const nameElement = document.getElementById(`member${indexToText[memberIndex]}Name`);
+        const spriteElement = document.getElementById(`member${indexToText[memberIndex]}Sprite`);
+        const formElement = document.getElementById(`member${indexToText[memberIndex]}Form`);
+        const levelTextElement = document.getElementById(`member${indexToText[memberIndex]}LevelText`);
+        const levelElement = document.getElementById(`member${indexToText[memberIndex]}Level`);
+        const typeOneElement = document.getElementById(`member${indexToText[memberIndex]}TypeOne`);
+        const typeTwoElement = document.getElementById(`member${indexToText[memberIndex]}TypeTwo`);
+        const statusElement = document.getElementById(`member${indexToText[memberIndex]}Status`);
+        const hpBarElement = document.getElementById(`member${indexToText[memberIndex]}HpBar`);
+        const activeHpElement = document.getElementById(`member${indexToText[memberIndex]}ActiveHp`);
+
+        // Show/hide elements based on level and HP
+        if (memberData.level > 0) {
+          if (levelTextElement) levelTextElement.style.display = "block";
+          if (hpBarElement) hpBarElement.style.display = "block";
+          const cardElement = document.getElementById(cardId);
+          if (cardElement) cardElement.style.backgroundColor = cardColor;
         }
 
-        for (let i = 0; i <= 5; i++) {
-          const memberObject = createMemberObject(party[i], i)
-          if (memberObject) {
-            members.push(memberObject);
+        // Handle form and name
+        const formName = memberData.form ? memberData.name.replace("G-Max ", "").replace("Mega ", "") : memberData.name;
+        if (nameElement) nameElement.textContent = formName.toUpperCase();
+
+        if (spriteElement) {
+          if (memberData.form) {
+            spriteElement.src = `./images/pokemon/${formName}-${memberData.form}.png`;
+          } else {
+            spriteElement.src = `./images/pokemon/${memberData.name}.png`;
           }
-        };
+        }
 
-        function displayMembers(members) {
-          const popup = document.querySelector(".popup");
-          popup.innerHTML = "";
+        // Handle formElement (show blank if form is empty)
+        if (formElement) {
+          formElement.src = memberData.form ? `./images/forms/${memberData.form}.png` : "";
+        }
 
-        members.forEach(member => {
-          const card = document.createElement('div');
-          card.className = 'pokemon-card';
-          card.id = member.id;
+        // Set level (only if available)
+        if (levelElement && memberData.level != null) {
+          levelElement.textContent = memberData.level;
+        }
 
-          card.innerHTML = `
-            <div class="sprite">
-                <img class="pokemon-sprite" id="${member.id}Sprite" src="./images/pokemon/${
-                  member.form ? `${member.sortName}-${member.form}` : `${member.sortName}`
-                }.png" alt="">
-                <img id="${member.id}Form" src="" alt="">
-            </div>
-            <div class="stats">
-                <div class="line-one">
-                    <div class="name" id="${member.id}Name">${member.sortName.toUpperCase()}</div>
-                    <div class="level-container">
-                        <p id="${member.id}LevelText">Lv.</p>
-                        <p class="level-number" id="${member.id}Level">${member.level}</p>
-                    </div>
-                </div>
-                <div class="line-two">
-                  <div class="types">
-                      <img id="${member.id}TypeOne" src="${
-                        member.teraType ? `./images/tera-types/${member.teraType}.png` : `./images/types/${member.typeOne}.png`
-                      }" alt="">
-                      <img id="${member.id}TypeTwo" src="${
-                        member.teraType ? "" : `./images/types/${member.typeTwo}.png`
-                      }" alt="">
-                  </div>
-                </div>
-                <div class="line-three">
-                    <img id="${member.id}Status" class="status" src="./images/status/${member.status}.png" alt="">
-                </div>
-                <div class="line-four">
-                    <div id="${member.id}HpBar" class="hp-container">
-                        <div id="${member.id}ActiveHp" class="hp-bar"></div>
-                    </div>
-                </div>
-            </div>
-          `;
+        // Set types (only if available)
+        if (typeOneElement && memberData.types && memberData.types[0]) {
+          typeOneElement.src = `./images/types/${memberData.types[0]}.png`;
+        } else if (typeOneElement) {
+          typeOneElement.src = "";  // Set to blank if no type
+        }
 
-          popup.appendChild(card);
+        if (typeTwoElement && memberData.types && memberData.types[1]) {
+          typeTwoElement.src = `./images/types/${memberData.types[1]}.png`;
+        } else if (typeTwoElement) {
+          typeTwoElement.src = "";  // Set to blank if no second type
+        }
 
-          const hpPercentage = (member.currentHp / member.maxHp) * 100;
-          const hpBar = card.querySelector(`#${member.id}ActiveHp`);
-          
-          console.log(hpPercentage)
-          console.log(hpBar)
+        // Set status (only if available)
+        if (statusElement) {
+          statusElement.src = memberData.status ? `./images/status/${memberData.status}.png` : "";  // Blank if empty
+        }
 
-          function setHp(percentage, hp) {
-            hp.style.transition = "width 0.2s linear, background-color 0.2s ease";
-            hpBarWidth = `${percentage}%`;
-            if (percentage <= 25) {
-              hp.style.backgroundColor = hpBarRed;
-            } else if (percentage <= 50) {
-              hp.style.backgroundColor = hpBarYellow;
-            } else {
-              hp.style.backgroundColor = hpBarGreen;
-            }
-          };
-          
-          setHp(hpPercentage, hpBar);
+        // Set HP (only if available)
+        if (activeHpElement && memberData.currentHP != null && memberData.maxHP != null) {
+          const hpPercentage = (memberData.currentHP / memberData.maxHP) * 100;
+          setHp(hpPercentage, activeHpElement);
+        }
+
+        console.log(memberIndex)
+      }
+
+      // Loop through all members and update their data
+      party.forEach((member, index) => {
+        updateMember(index, member);
       });
+
+      sortCards();
     }
-      members.sort((a, b) => a.sortName.localeCompare(b.sortName));
-      displayMembers(members);
-    }
-  }
-);
+  });
